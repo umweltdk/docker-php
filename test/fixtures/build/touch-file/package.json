@@ -1,0 +1,11 @@
+{
+  "name": "touch-file",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "build": "id && ls -laZ muh && touch muh/hellp.ts"
+  }
+}

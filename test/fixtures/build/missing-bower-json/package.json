@@ -1,0 +1,11 @@
+{
+  "name": "missing-bower-json",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bower": "^1.5.2"
+  }
+}

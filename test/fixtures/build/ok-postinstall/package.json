@@ -1,0 +1,11 @@
+{
+  "name": "ok-postinstall",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "postinstall": "touch hellp.ts"
+  }
+}

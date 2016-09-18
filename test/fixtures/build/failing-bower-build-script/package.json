@@ -1,0 +1,14 @@
+{
+  "name": "failing-build-script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "build": "exit 1"
+  },
+  "dependencies": {
+    "bower": "^1.5.2"
+  }
+}

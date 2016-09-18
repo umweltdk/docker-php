@@ -1,0 +1,22 @@
+{
+  "name": "ok-bower-test",
+  "version": "0.0.0",
+  "authors": [
+    "Brian Olsen <brian@maven-group.org>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.2.28"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

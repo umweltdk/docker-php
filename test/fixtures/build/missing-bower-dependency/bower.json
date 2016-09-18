@@ -1,0 +1,22 @@
+{
+  "name": "missing-bower-dependency",
+  "version": "0.0.0",
+  "authors": [
+    "Brian Olsen <brian@maven-group.org>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "jkdhkjkjdfgsfdg": "1.0.0"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

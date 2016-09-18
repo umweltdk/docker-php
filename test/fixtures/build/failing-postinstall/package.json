@@ -1,0 +1,11 @@
+{
+  "name": "failing-postinstall",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "postinstall": "exit 1"
+  }
+}

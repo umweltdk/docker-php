@@ -1,0 +1,7 @@
+FROM umweltdk/php:latest
+
+ONBUILD COPY package.json /var/www/html/
+ONBUILD RUN npm install --unsafe-perm
+
+ONBUILD COPY . /var/www/html/
+ONBUILD RUN ! jq -e .scripts.build package.json > /dev/null || npm run build
