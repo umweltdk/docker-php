@@ -69,9 +69,9 @@ $ docker run --rm my-php-app slug - > app.tar.gz
 
 The `php` images come in many flavors, each designed for a specific use case.
 
-## `php:<version>`
+## `php:<php-version>-<node-version>`
 
-This is the defacto image. If you are unsure about what your needs are, you probably want to use this one. It is designed to be used both as a throw away container (mount your source code and start the container to start your app), as well as the base to build other images off of. This tag is based off of [`node`](https://registry.hub.docker.com/_/node/) but adds a user, so everything is not run as root and an entrypoint to support testing and export the build product.
+This is the defacto image. If you are unsure about what your needs are, you probably want to use this one. It is designed to be used both as a throw away container (mount your source code and start the container to start your app), as well as the base to build other images off of. This tag is based off of [`php`](https://registry.hub.docker.com/_/php/) and adds a node runtime to that for building.
 
 ## `php:onbuild`
 
