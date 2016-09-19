@@ -1,13 +1,11 @@
-FROM umweltdk/node:0.12-onbuild
+FROM umweltdk/php:0.12-onbuild
 USER root
-RUN  cp -R /usr/src/app /usr/src/app-copy \
-  && rm -r /usr/src/app \
-  && mv /usr/src/app-copy /usr/src/app \
-  && chmod -R 0700 /usr/src/app \
-  && chown -R app:app /usr/src/app
+RUN  cp -R /var/www/html /var/www/html-copy \
+  && rm -r /var/www/html \
+  && mv /var/www/html-copy /var/www/html \
+  && chmod -R 0700 /var/www/html \
+  && chown -R app:app /var/www/html
 USER app
 
 RUN id && ls -laZ . && touch muh/hello.ls
-
-EXPOSE 8080
 

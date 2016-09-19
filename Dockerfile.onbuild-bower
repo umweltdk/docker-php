@@ -1,0 +1,10 @@
+FROM umweltdk/php:0.12
+
+ONBUILD COPY package.json /var/www/html/
+ONBUILD RUN npm install --unsafe-perm
+
+ONBUILD COPY bower.json /var/www/html/
+ONBUILD RUN ./node_modules/.bin/bower install --allow-root
+
+ONBUILD COPY . /var/www/html/
+ONBUILD RUN ! jq -e .scripts.build package.json > /dev/null || npm run build

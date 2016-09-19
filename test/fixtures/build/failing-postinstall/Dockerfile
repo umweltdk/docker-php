@@ -1,2 +1,1 @@
-FROM umweltdk/node:0.12-onbuild
-EXPOSE 8080
+FROM umweltdk/php:0.12-onbuild

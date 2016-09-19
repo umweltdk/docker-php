@@ -35,9 +35,9 @@ fixtures build
   docker build --rm "$(fixture missing-build-script)"
 }
 
-@test "succeeds in building when touching file" {
-  docker build --rm "$(fixture touch-file)"
-}
+#@test "succeeds in building when touching file" {
+#  docker build --rm "$(fixture touch-file)"
+#}
 
 @test "fails to build bower version with failing build script" {
   ! docker build --rm "$(fixture failing-bower-build-script)"
