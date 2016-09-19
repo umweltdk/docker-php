@@ -30,6 +30,17 @@ clean:
 dist:
 	mkdir -p dist
 
+README.md: README.header.md README.footer.md $(wildcard dist/v*)
+	cp README.header.md README.md
+	$(MAKE) $(foreach version,$(notdir $(wildcard dist/v*)),README.md-$(version))
+	cat README.footer.md >> README.md
+
+README.md-%:
+	echo '- [$(shell uniq dist/$*/images.txt | sort | sed -E 's/(.+)/`\1`/' | tr '\n' , | sed -E 's/,/, /g') (*Dockerfile*)](https://github.com/umweltdk/docker-php/blob/master/Dockerfile)' >> README.md
+	echo '- [$(shell uniq dist/$*/images-onbuild.txt | sort | sed -E 's/(.+)/`\1`/' | tr '\n' , | sed -E 's/,/, /g') (*Dockerfile.onbuild*)](https://github.com/umweltdk/docker-php/blob/master/Dockerfile.onbuild)' >> README.md
+	echo '- [$(shell uniq dist/$*/images-onbuild-bower.txt | sort | sed -E 's/(.+)/`\1`/' | tr '\n' , | sed -E 's/,/, /g') (*Dockerfile.onbuild-bower*)](https://github.com/umweltdk/docker-php/blob/master/Dockerfile.onbuild-bower)' >> README.md
+
+
 dist/Dockerfile.base.%: Dockerfile | dist
 	cp $< $@.tmp
 	sed -E -i.bak 's/^(FROM .+:).*-(.*)/\1$(call phpVersion,$*)-\2/;' "$@.tmp"
@@ -51,27 +62,42 @@ dist/Dockerfile.onbuild-bower.%: Dockerfile.onbuild-bower | dist
 	mv $@.tmp $@
 
 
-build-latest: build-$(php_latest_version)-$(node_latest_version)
+build-latest: build-$(php_latest_version)-$(node_latest_version) | dist
+	mkdir -p dist/v$(php_latest_version)-$(node_latest_version)
+	echo latest >> dist/v$(php_latest_version)-$(node_latest_version)/images.txt
+	echo onbuild >> dist/v$(php_latest_version)-$(node_latest_version)/images-onbuild.txt
+	echo onbuild-bower >> dist/v$(php_latest_version)-$(node_latest_version)/images-onbuild-bower.txt
 	docker tag $(image):$(php_latest_version)-$(node_latest_version) $(image):latest
 	docker tag $(image):$(php_latest_version)-$(node_latest_version)-onbuild $(image):onbuild
 	docker tag $(image):$(php_latest_version)-$(node_latest_version)-onbuild-bower $(image):onbuild-bower
 
-build-lts: build-$(php_lts_version)-$(node_lts_version)
+build-lts: build-$(php_lts_version)-$(node_lts_version) | dist
+	mkdir -p dist/v$(php_lts_version)-$(node_lts_version)
+	echo lts >> dist/v$(php_lts_version)-$(node_lts_version)/images.txt
+	echo lts-onbuild >> dist/v$(php_lts_version)-$(node_lts_version)/images-onbuild.txt
+	echo lts-onbuild-bower >> dist/v$(php_lts_version)-$(node_lts_version)/images-onbuild-bower.txt
 	docker tag $(image):$(php_lts_version)-$(node_lts_version) $(image):lts
 	docker tag $(image):$(php_lts_version)-$(node_lts_version)-onbuild $(image):lts-onbuild
 	docker tag $(image):$(php_lts_version)-$(node_lts_version)-onbuild-bower $(image):lts-onbuild-bower
 
-$(foreach php,$(php_versions),build-$(php)-latest):
-	echo "muh $@"
+$(foreach php,$(php_versions),build-$(php)-latest): | dist
 	$(MAKE) build-$(call phpVersion,$(subst build-,,$@))-$(node_latest_version)
 	$(MAKE) build-$(call phpVersion,$(subst build-,,$@))-$(node_latest_major)
+	mkdir -p dist/v$(call phpVersion,$(subst build-,,$@))-$(node_latest_version)
+	echo $(call phpVersion,$(subst build-,,$@))-latest >> dist/v$(call phpVersion,$(subst build-,,$@))-$(node_latest_version)/images.txt
+	echo $(call phpVersion,$(subst build-,,$@))-latest-onbuild >> dist/v$(call phpVersion,$(subst build-,,$@))-$(node_latest_version)/images-onbuild.txt
+	echo $(call phpVersion,$(subst build-,,$@))-latest-onbuild-bower >> dist/v$(call phpVersion,$(subst build-,,$@))-$(node_latest_version)/images-onbuild-bower.txt
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(node_latest_version) $(image):$(call phpVersion,$(subst build-,,$@))-latest
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(node_latest_version)-onbuild $(image):$(call phpVersion,$(subst build-,,$@))-latest-onbuild
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(node_latest_version)-onbuild-bower $(image):$(call phpVersion,$(subst build-,,$@))-latest-onbuild-bower
 
-$(foreach php,$(php_versions),build-$(php)-lts):
+$(foreach php,$(php_versions),build-$(php)-lts): | dist
 	$(MAKE) build-$(call phpVersion,$(subst build-,,$@))-$(node_lts_version)
 	$(MAKE) build-$(call phpVersion,$(subst build-,,$@))-$(node_lts_major)
+	mkdir -p dist/v$(call phpVersion,$(subst build-,,$@))-$(node_lts_version)
+	echo $(call phpVersion,$(subst build-,,$@))-lts >> dist/v$(call phpVersion,$(subst build-,,$@))-$(node_lts_version)/images.txt
+	echo $(call phpVersion,$(subst build-,,$@))-lts-onbuild >> dist/v$(call phpVersion,$(subst build-,,$@))-$(node_lts_version)/images-onbuild.txt
+	echo $(call phpVersion,$(subst build-,,$@))-lts-onbuild-bower >> dist/v$(call phpVersion,$(subst build-,,$@))-$(node_lts_version)/images-onbuild-bower.txt
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(node_lts_version) $(image):$(call phpVersion,$(subst build-,,$@))-lts
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(node_lts_version)-onbuild $(image):$(call phpVersion,$(subst build-,,$@))-lts-onbuild
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(node_lts_version)-onbuild-bower $(image):$(call phpVersion,$(subst build-,,$@))-lts-onbuild-bower
@@ -79,8 +105,16 @@ $(foreach php,$(php_versions),build-$(php)-lts):
 $(foreach php,$(php_versions),build-$(php)-old):
 	$(MAKE) $(foreach node,$(node_old_versions),build-$(call phpVersion,$(subst build-,,$@))-$(node))
 
-$(foreach node,$(node_versions),$(foreach php,$(php_versions),build-$(php)-$(node))):
+$(foreach node,$(node_versions),$(foreach php,$(php_versions),build-$(php)-$(node))): | dist
 	$(MAKE) build-$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))
+	mkdir -p dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))
+	echo $(call phpVersion,$(subst build-,,$@))-$(call nodeVersion,$(subst build-,,$@)) >> dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))/images.txt
+	echo $(call phpVersion,$(subst build-,,$@))-$(call nodeVersion,$(subst build-,,$@))-onbuild >> dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))/images-onbuild.txt
+	echo $(call phpVersion,$(subst build-,,$@))-$(call nodeVersion,$(subst build-,,$@))-onbuild-bower >> dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))/images-onbuild-bower.txt
+	mkdir -p dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))
+	echo $(call phpVersion,$(subst build-,,$@))-$(subst $(space),.,$(wordlist 1,2,$(subst ., ,$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))))) >> dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))/images.txt
+	echo $(call phpVersion,$(subst build-,,$@))-$(subst $(space),.,$(wordlist 1,2,$(subst ., ,$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@))))))-onbuild >> dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))/images-onbuild.txt
+	echo $(call phpVersion,$(subst build-,,$@))-$(subst $(space),.,$(wordlist 1,2,$(subst ., ,$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@))))))-onbuild-bower >> dist/v$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))/images-onbuild-bower.txt
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@))) $(image):$(call phpVersion,$(subst build-,,$@))-$(call nodeVersion,$(subst build-,,$@))
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))-onbuild $(image):$(call phpVersion,$(subst build-,,$@))-$(call nodeVersion,$(subst build-,,$@))-onbuild
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))-onbuild-bower $(image):$(call phpVersion,$(subst build-,,$@))-$(call nodeVersion,$(subst build-,,$@))-onbuild-bower
@@ -89,6 +123,10 @@ $(foreach node,$(node_versions),$(foreach php,$(php_versions),build-$(php)-$(nod
 	docker tag $(image):$(call phpVersion,$(subst build-,,$@))-$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@)))-onbuild-bower $(image):$(call phpVersion,$(subst build-,,$@))-$(subst $(space),.,$(wordlist 1,2,$(subst ., ,$(call nodeFullVersion,$(call nodeVersion,$(subst build-,,$@))))))-onbuild-bower
 
 build-%: dist/Dockerfile.base.% dist/Dockerfile.onbuild.% dist/Dockerfile.onbuild-bower.%
+	mkdir -p dist/v$*
+	echo $* >> dist/v$*/images.txt
+	echo $*-onbuild >> dist/v$*/images-onbuild.txt
+	echo $*-onbuild-bower >> dist/v$*/images-onbuild-bower.txt
 	docker build --pull -t $(image):$* -f dist/Dockerfile.base.$* .
 	docker build -t $(image):$(if $(subst latest,,$*),$*-,)onbuild -f dist/Dockerfile.onbuild.$* .
 	docker build -t $(image):$(if $(subst latest,,$*),$*-,)onbuild-bower -f dist/Dockerfile.onbuild-bower.$* .
